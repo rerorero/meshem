@@ -1,0 +1,8 @@
+ALERT counter_over30
+  IF playground_counter{key1="tick1"} > 30
+  FOR 3s
+  ANNOTATIONS {
+    summary = "Instance {{ $labels.instance }} counts over",
+    description = "{{ $labels.instance }} of job {{ $labels.job }} alert.",
+  }
+

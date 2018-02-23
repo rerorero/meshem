@@ -1,0 +1,12 @@
+---
+- name: install grafana rpm
+  yum:
+    name: "{{ grafana_rpm_url }}"
+    state: present
+  become: yes
+
+- name: be sure grafana started
+  service:
+    name: grafana-server 
+    state: started
+  become: yes

@@ -1,0 +1,21 @@
+[Unit]
+Description=prometheus server
+Wants=basic.target
+After=basic.target network.target
+
+[Service]
+Type=simple
+User={{ prometheus_user }}
+Group={{ prometheus_group }}
+ExecStart=/bin/sh -c "{{ prometheus_bin_base }}/prometheus \
+  -config.file={{ prometheus_conf_base }}/prometheus.yml \
+  -storage.local.path={{ prometheus_server_strage_path }} \
+  -storage.local.memory-chunks={{ prometheus_server_memory_chunks }} \
+  -storage.local.max-chunks-to-persist={{ prometheus_server_max_chunks_persist }} \
+  -storage.local.retention={{ prometheus_server_retention }} \
+  -storage.local.series-file-shrink-ratio={{ prometheus_server_file_shrink_ratio }} \
+  -alertmanager.url={{ prometheus_server_am }} \
+  > {{ prometheus_log_dir }}/prometheus.log 2>&1"
+
+[Install]
+WantedBy=multi-user.target

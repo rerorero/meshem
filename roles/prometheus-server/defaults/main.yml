@@ -1,0 +1,16 @@
+---
+
+prometheus_server_version: 1.5.2
+prometheus_server_strage_path: /var/prometheus/data
+# storage.local.memory-chunks * 1024 = memory bytes (default 1048576=1G)
+prometheus_server_memory_chunks: 1048576
+# storage.local.max-chunks-to-persist flag. As a rule of thumb, keep it around 50% of the storage.local.memory-chunks
+prometheus_server_max_chunks_persist: 51200
+# storage.local.series-file-shrink-ratio
+prometheus_server_retention: 744h
+# If you have a lot of disk space but want to minimize rewrites (at the cost of wasted disk space), increase the flag value to higher values, e.g. 0.3 for 30% of required chunk removal.
+prometheus_server_file_shrink_ratio: 0.1
+
+prometheus_server_am: http://192.168.33.102:9093/
+
+prometheus_server_rule_dir: "{{ prometheus_conf_base }}/rules"

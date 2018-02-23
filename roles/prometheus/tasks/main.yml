@@ -1,0 +1,27 @@
+---
+- name: create prometheus group
+  group:
+    name: "{{ prometheus_group }}"
+    state: present
+  become: yes
+
+- name: create prometheus user
+  user:
+    name: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    state: present
+  become: yes
+
+- name: mkdir prometheus package directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    mode: 0755
+  with_items:
+    - "{{ prometheus_pkg_dir }}"
+    - "{{ prometheus_conf_base }}"
+    - "{{ prometheus_log_dir }}"
+  become: yes
+
