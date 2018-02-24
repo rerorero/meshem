@@ -1,1 +1,6 @@
 .vagrant
+.python-version
+vendor/
+meshem*_darwin_*
+meshem*_windows_*
+meshem*_linux_*

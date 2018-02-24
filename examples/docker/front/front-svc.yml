@@ -1,0 +1,14 @@
+---
+protocol: HTTP
+hosts:
+  - name: front
+    ingressAddr:
+      host: 10.2.2.11
+      port: 8088
+    substanceAddr:
+      host: 10.2.2.1
+      port: 8080
+    egressHost: 10.2.2.11
+dependentServices:
+  - name: app1
+    egressPort: 9000

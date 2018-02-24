@@ -1,0 +1,4 @@
+---
+zipkin_port: 9411
+zipkin_data_dir: "/var/zipkin"
+zipkin_docker_runner: docker

@@ -1,0 +1,31 @@
+---
+- name: mkdir envoy directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0777
+    recurse: yes
+  with_items:
+    - "{{ envoy_data_dir }}"
+    - "{{ envoy_vol }}"
+    - "{{ envoy_log_dir }}"
+  become: yes
+
+- name: Put envoy compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ envoy_data_dir }}/docker-compose.yml"
+
+- name: put envoy conf file
+  template:
+    src: envoy-conf.yaml.j2
+    dest: "{{ envoy_vol }}/envoy.yaml"
+  notify: Restart envoy
+
+# TODO: should reload gracefully?
+- name: Start envoy server
+  command: docker-compose up -d
+  args:
+    chdir: "{{ envoy_data_dir }}"
+  become: yes
+  become_user: "{{ envoy_docker_runner }}"

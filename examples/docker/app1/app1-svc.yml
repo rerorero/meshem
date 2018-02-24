@@ -1,0 +1,20 @@
+---
+protocol: HTTP
+hosts:
+  - name: app1-01
+    ingressAddr:
+      host: 10.2.1.11
+      port: 80
+    substanceAddr:
+      host: 10.2.1.1
+      port: 9001
+    egressHost: 10.2.1.11
+  - name: app1-02
+    ingressAddr:
+      host: 10.2.1.12
+      port: 80
+    substanceAddr:
+      host: 10.2.1.2
+      port: 9001
+    egressHost: 10.2.1.12
+dependentServices: []

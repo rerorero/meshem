@@ -1,0 +1,36 @@
+language: go
+sudo: required
+go:
+- 1.9
+services:
+- docker
+before_install:
+- go get github.com/golang/dep/...
+- go get github.com/mitchellh/gox
+install:
+- $GOPATH/bin/dep ensure
+script:
+- sh ./src/start-mock-consul.sh
+- go test -v -short ./...
+- sh ./src/stop-mock-consul.sh
+deploy:
+- provider: script
+  script: bash release.sh "rerorero/meshem" "$TRAVIS_TAG"
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: rerorero/meshem
+- provider: releases
+  api_key:
+    secure: goWQAXS+K/pCc1gUPTyUJVAOO4eqgkGBSKbnqbKaaWCUjcczCY353trdLmxNqG0IVQOC0g+DaQ3mC2DkM+I+4qsnf/wY81FqdwJJy6Ol2ffiviM4ecvztDDI102VT1k6M8sMk5+25b1tUPy5kpbxhb2OxeE+Wv7lu4hTYBA0EA18+JHnE8GTbJHCOG5m44GW05o1bknC1brCYOUUyu6v1np/JaieGf/mxatPWn2LVl7l8AaYY4dRpA08lx18R8oC6DWYP2c2DoAU3M+mRKOv0W/RIALSWufPCC7Uhk0/fy1tTyHYf0fv/6NZ50f5O2qK/JXvxhZIdT+hH88lJa95kRaK8FieAPOaDX2GKC1wyZBwcewTEAyOlsFO6WtGK1E8SLunZ7B+CIMafx60gLMwrnTcMkmWgvh/qALXM1aXmlDlpdxCoe5w6ZyVUEIFGiDCzTZR2pbZcQZgXeaXwaFuo91b7CA6FKeetinmLwBYHtW+rcqi1NGehdabAlhIE1aWmSfhCSN7zyu6s64s5m1d1tzBByoEsDctS6hFGz7R9PL++xEw2m1EjNtKkJ93YLJQSNKy9/1Y5oYL+yDIGZhNg0wa+DbveKYv7PdoSY4ZZGQ6SjEbc95duPSakWkGAXlNF6wkl1XoJ+e1E/mwb5wNxAx8slHgpsN3UeGoSbDboRE=
+  file:
+    - meshem_darwin_amd64
+    - meshem_linux_amd64
+    - meshem_windows_amd64.exe
+    - meshemctl_darwin_amd64
+    - meshemctl_linux_amd64
+    - meshemctl_windows_amd64.exe
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: rerorero/meshem

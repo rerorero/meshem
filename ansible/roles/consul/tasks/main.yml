@@ -1,0 +1,60 @@
+---
+- name: create consul group
+  group:
+    name: "{{ consul_group }}"
+    state: present
+  become: yes
+
+- name: create consul user
+  user:
+    name: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    state: present
+  become: yes
+
+- name: mkdir consul directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0755
+  with_items:
+    - "{{ consul_conf_dir }}"
+    - "{{ consul_data_dir }}"
+  become: yes
+
+- name: Download consul binary
+  unarchive:
+    src: "{{ consul_zip_url }}"
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: 0755
+  become: yes
+
+- name: Put consul config
+  template:
+    src: "{{ consul_role  }}.json.j2"
+    dest: "{{ consul_conf_dir }}/{{ consul_role }}.json"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+  become: yes
+  notify: restart consul
+
+- name: register systemd service
+  template:
+    src: consul.service.j2
+    dest: /etc/systemd/system/consul.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: restart consul
+
+- name: start consul
+  systemd:
+    name: consul
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  become: yes

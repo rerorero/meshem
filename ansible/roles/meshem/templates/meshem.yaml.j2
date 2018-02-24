@@ -1,0 +1,17 @@
+---
+xds:
+  port: {{ meshem_xds_port }}
+  cache_collection_interval_ms: {{ meshem_collection_interval_ms }}
+consul:
+  url: "http://{{ consul_server_hosts[0] }}:8500"
+  token: master
+  datacenter: "{{ consul_datacenter }}"
+ctlapi:
+  port: {{ meshem_ctlapi_port }}
+discovery:
+discovery:
+  type: consul
+  consul:
+    url: "http://{{ consul_server_hosts[0] }}:8500"
+    token: master
+    datacenter: "{{ consul_datacenter }}"

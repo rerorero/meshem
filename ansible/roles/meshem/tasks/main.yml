@@ -1,0 +1,47 @@
+---
+- name: create meshem group
+  group:
+    name: "{{ meshem_group }}"
+    state: present
+  become: yes
+
+- name: create consul user
+  user:
+    name: "{{ meshem_user }}"
+    group: "{{ meshem_group }}"
+    state: present
+  become: yes
+
+- name: Download meshem binary
+  get_url:
+    url: "{{ meshem_pkg_url }}"
+    dest: /usr/local/bin/meshem
+    mode: 0755
+  become: yes
+
+- name: Put meshem config
+  template:
+    src: meshem.yaml.j2
+    dest: /etc/meshem.yaml
+    owner: "{{ meshem_user }}"
+    group: "{{ meshem_group }}"
+  become: yes
+  notify: restart meshem
+
+- name: register meshem service
+  template:
+    src: meshem.service.j2
+    dest: /etc/systemd/system/meshem.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: restart meshem
+
+- name: start meshem
+  systemd:
+    name: meshem
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  become: yes

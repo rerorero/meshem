@@ -1,0 +1,8 @@
+---
+- name: reload systemd
+  command: systemctl daemon-reload
+  become: yes
+
+- name: restart prometheus
+  systemd: name=prometheus state=restarted
+  become: yes

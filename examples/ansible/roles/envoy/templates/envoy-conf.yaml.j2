@@ -1,0 +1,50 @@
+admin:
+  access_log_path: "/var/envoy/admin.log"
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: {{ envoy_admin_port }}
+
+dynamic_resources:
+  lds_config:
+    api_config_source:
+      api_type: GRPC
+      cluster_names: [xds_cluster]
+  cds_config:
+    api_config_source:
+      api_type: GRPC
+      cluster_names: [xds_cluster]
+
+static_resources:
+  clusters:
+  - name: xds_cluster
+    type: "{{ meshem_xds_endpoint.type }}"
+    connect_timeout: 1s
+    http2_protocol_options: {}
+    hosts:
+{% for host in meshem_xds_endpoint.endpoints %}
+    - socket_address:
+        address: "{{ host.host }}"
+        port_value: {{ host.port }}
+{% endfor %}
+{% if zipkin_endpoint is defined %}
+  - name: zipkin
+    connect_timeout: 1s
+    type: "{{ zipkin_endpoint.type }}"
+    lb_policy: round_robin
+    hosts:
+{% for host in zipkin_endpoint.endpoints %}
+    - socket_address:
+        address: "{{ host.host }}"
+        port_value: {{ host.port }}
+{% endfor %}
+{% endif %}
+{% if zipkin_endpoint is defined %}
+tracing:
+  http:
+    name: envoy.zipkin
+    config:
+      collector_cluster: zipkin
+      collector_endpoint: "/api/v1/spans"
+{% endif %}
+

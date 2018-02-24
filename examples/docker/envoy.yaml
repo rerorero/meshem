@@ -1,0 +1,27 @@
+admin:
+  access_log_path: "/var/log/envoy-admin.log"
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 8001
+
+dynamic_resources:
+  lds_config:
+    api_config_source:
+      api_type: GRPC
+      cluster_names: [xds_cluster]
+  cds_config:
+    api_config_source:
+      api_type: GRPC
+      cluster_names: [xds_cluster]
+
+static_resources:
+  clusters:
+  - name: xds_cluster
+    type: STATIC
+    connect_timeout: 10s
+    http2_protocol_options: {}
+    hosts:
+    - socket_address:
+        address: 10.2.0.2
+        port_value: 8090

@@ -1,0 +1,11 @@
+---
+consul_version: 1.0.6
+consul_zip_url: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"
+consul_user: consul
+consul_group: consul
+consul_conf_dir: /etc/consul.d
+consul_data_dir: /var/consul
+consul_servers: "{{ groups.consul | map('extract', hostvars, 'ansible_host') | list }}"
+consul_encrypt_key: "EbhnzlFrS8xJ7DcxYesExg==" 
+consul_loglevel: INFO
+consul_role: server

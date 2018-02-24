@@ -1,0 +1,19 @@
+---
+protocol: HTTP
+hosts:
+  - name: myapp1
+    ingressAddr:
+      host: 192.168.34.71
+      port: 80
+    substanceAddr:
+      host: 127.0.0.1
+      port: 9000
+    egressHost: 127.0.0.1
+  - name: myapp2
+    ingressAddr:
+      host: 192.168.34.72
+      port: 80
+    substanceAddr:
+      host: 127.0.0.1
+      port: 9000
+    egressHost: 127.0.0.1

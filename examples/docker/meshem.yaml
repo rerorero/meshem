@@ -1,0 +1,15 @@
+---
+xds:
+  port: 8090
+consul:
+  url: "http://10.2.0.4:8500"
+  token: master
+  datacenter: dc1
+ctlapi:
+  port: 8091
+discovery:
+  type: consul
+  consul:
+    url: "http://10.2.0.4:8500"
+    token: master
+    datacenter: dc1

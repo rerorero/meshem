@@ -1,0 +1,11 @@
+---
+version: '2'
+services:
+  envoy-{{ envoy_service }}-{{ envoy_hostname }}:
+    image: {{ envoy_image }}
+    command: /usr/local/bin/envoy -c /var/envoy/envoy.yaml --service-cluster {{ envoy_service }} --service-node {{ envoy_hostname }} -l {{ envoy_logleve }}
+    volumes:
+      - {{ envoy_vol }}:/var/envoy
+      - {{ envoy_log_dir }}:/var/log/envoy
+    network_mode: "host"
+    restart: always

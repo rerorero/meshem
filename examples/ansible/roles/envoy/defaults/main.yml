@@ -1,0 +1,11 @@
+---
+# You should define a service name which is used as a cluster id by envoy.
+# envoy_service: <service name>
+envoy_hostname: "{{ inventory_hostname }}"
+envoy_admin_port: 8001
+envoy_image: "envoyproxy/envoy:ad81550d5f5026c33fcfc290a4f7afdc5e754dd0"
+envoy_data_dir: "/var/envoy/{{ envoy_service }}"
+envoy_vol: "{{ envoy_data_dir }}/vol"
+envoy_log_dir: "{{ envoy_data_dir }}/log"
+envoy_logleve: trace
+envoy_docker_runner: docker

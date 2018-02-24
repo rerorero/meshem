@@ -1,0 +1,13 @@
+[Unit]
+Description=meshem server
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Environment=GOMAXPROCS={{ ansible_processor_vcpus }}
+Restart=on-failure
+ExecStart=/usr/local/bin/meshem --conf.file /etc/meshem.yaml
+
+[Install]
+WantedBy=multi-user.target
+

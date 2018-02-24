@@ -1,0 +1,9 @@
+---
+- name: Download compose binary
+  get_url:
+    url: "{{ docker_binary_url }}"
+    dest: /usr/bin/docker-compose
+    remote_src: yes
+    mode: 0755
+  become: yes
+

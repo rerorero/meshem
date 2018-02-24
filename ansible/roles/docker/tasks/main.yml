@@ -1,0 +1,18 @@
+---
+- name: create docker group
+  group:
+    name: docker
+    state: present
+  become: yes
+
+- name: create docker user
+  user:
+    name: docker
+    group: docker
+    state: present
+  become: yes
+
+- include: "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+
+- include: compose.yml
+

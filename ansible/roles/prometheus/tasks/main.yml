@@ -1,0 +1,76 @@
+---
+- name: create prometheus group
+  group:
+    name: "{{ prometheus_group }}"
+    state: present
+  become: yes
+
+- name: create prometheus user
+  user:
+    name: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    state: present
+  become: yes
+
+- name: mkdir prometheus package directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    mode: 0755
+  with_items:
+    - "{{ prometheus_pkg_dir }}"
+    - "{{ prometheus_log_dir }}"
+    - "{{ prometheus_strage_path }}"
+  become: yes
+
+- name: download prometheus package
+  unarchive:
+    src: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    dest: "{{ prometheus_pkg_dir }}"
+    remote_src: yes
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_group }}"
+    mode: 0755
+  become: yes
+
+- name: symlink to prometheus bin
+  file:
+    src: "{{ prometheus_pkg_dir }}/prometheus-{{ prometheus_version }}.linux-amd64/prometheus"
+    dest: "{{ prometheus_bin_base }}/prometheus"
+    state: link
+    mode: 0755
+  become: yes
+  notify:
+    - restart prometheus
+
+- name: setup systemd services
+  template:
+    src: "prometheus.service.j2"
+    dest: "/etc/systemd/system/prometheus.service"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify:
+    - reload systemd
+    - restart prometheus
+
+- name: setup prometheus server config
+  template:
+    src: "prometheus.yml.j2"
+    dest: "/etc/prometheus.yml"
+    owner: "{{ prometheus_user }}"
+    group: "{{ prometheus_user }}"
+    mode: 0644
+  become: yes
+  notify:
+    - restart prometheus
+
+- name: enable prometheus server
+  service:
+    name: prometheus
+    state: started
+    enabled: yes
+  become: yes

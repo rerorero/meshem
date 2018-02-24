@@ -1,4 +1,0 @@
----
-- name: restart prometheus server
-  service: name=prometheus state=restarted
-  become: yes

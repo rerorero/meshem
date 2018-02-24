@@ -1,0 +1,21 @@
+meshem-meshem ansible_host=192.168.34.61
+meshem-monitor ansible_host=192.168.34.62
+
+[control-plane]
+meshem-meshem
+meshem-monitor
+
+[consul]
+meshem-meshem
+
+[prometheus]
+meshem-monitor
+
+[zipkin]
+meshem-monitor
+
+[meshem]
+meshem-meshem
+
+[vagrant:children]
+control-plane

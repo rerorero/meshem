@@ -1,0 +1,32 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+)
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	json := fmt.Sprintf(`{"msg": "app info", "from" : "%s"}`, os.Getenv("HOSTNAME"))
+	fmt.Fprintf(w, json)
+}
+
+func newLogHandler(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
+		handler.ServeHTTP(w, r)
+	})
+}
+
+var port = flag.Int("port", 9000, "listen port")
+
+func main() {
+	flag.Parse()
+	http.HandleFunc("/", handler)
+	err := http.ListenAndServe(fmt.Sprintf(":%d",*port), newLogHandler(http.DefaultServeMux))
+	if err != nil {
+		println(err.Error)
+	}
+}

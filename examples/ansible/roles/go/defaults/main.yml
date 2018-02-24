@@ -1,0 +1,4 @@
+---
+go_path: "~/go"
+go_home: /usr/local
+go_root: "{{ go_home }}/go"

@@ -1,0 +1,33 @@
+---
+ansible_user: vagrant
+ansible_ssh_pass: vagrant
+
+# app service 
+# app_port: 'app' application process listens on this port
+app_port: 9000
+
+# front service
+# front_port: 'front' application process listens on this port
+front_port: 8080
+# front_app_endpoint: 'front' application call HTTP API 
+front_app_endpoint: "http://{{ hostvars[groups.app[0]].ansible_host }}:{{ app_port }}/"
+
+meshem_xds_endpoint:
+  type: static
+  endpoints:
+    - host: 192.168.34.61
+      port: 8090
+
+# DNS can also be used.
+#
+# meshem_xds_endpoint:
+#   type: strict_dns
+#   endpoints:
+#     - host: my.xds.domain
+#       port: 8000
+
+zipkin_endpoint:
+  type: static
+  endpoints:
+    - host: 192.168.34.62
+      port: 9411

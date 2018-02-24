@@ -1,0 +1,7 @@
+---
+ansible_user: vagrant
+ansible_ssh_pass: vagrant
+
+# meshem
+meshem_xds_port: 8090
+meshem_ctlapi_port: 8091

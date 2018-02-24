@@ -1,7 +1,0 @@
----
-prometheus_user: prometheus
-prometheus_group: prometheus
-prometheus_bin_base: /usr/local/bin
-prometheus_pkg_dir: /usr/local/bin/prometheus_pkg
-prometheus_conf_base: /usr/local/etc/prometheus
-prometheus_log_dir: /var/log/prometheus

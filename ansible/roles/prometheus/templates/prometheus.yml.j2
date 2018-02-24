@@ -1,0 +1,23 @@
+global:
+  # How frequently to scrape targets by default.
+  scrape_interval: 15s
+
+  # How long until a scrape request times out.
+  scrape_timeout: 10s
+
+  # How frequently to evaluate rules.
+  evaluation_interval: 1m
+
+  # The labels to add to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  # external_labels: {}
+
+# A list of scrape configurations.
+# Also see, default ports
+# https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+scrape_configs:
+  - job_name: dataplane
+    consul_sd_configs:
+      - server:   'localhost:8500'
+        token:    '{{ consul_master_token }}'
+        services: ['meshem_dataplane']

@@ -1,0 +1,13 @@
+[Unit]
+Description=products
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Environment=HOSTNAME={{ inventory_hostname }}
+Restart=on-failure
+ExecStart={{ go_root }}/bin/go run /var/app.go --port={{ app_port }}
+
+[Install]
+WantedBy=multi-user.target
+

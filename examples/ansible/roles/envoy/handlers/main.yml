@@ -1,0 +1,8 @@
+---
+# TODO: should we restart gracefully ? (or configure eds?)
+- name: Restart envoy
+  command: docker-compose restart
+  args:
+    chdir: "{{ envoy_data_dir }}"
+  become: yes
+  become_user: "{{ envoy_docker_runner }}"

@@ -1,0 +1,28 @@
+---
+- name: Install pkgs
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+  become: yes
+
+- name: Add Docker CE repo
+  command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  changed_when: yes
+  become: yes
+
+- name: Install docker CE
+  yum:
+    name: "{{ docker_centos7_pkg }}"
+    state: present
+  become: yes
+
+- name: enable docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  become: yes

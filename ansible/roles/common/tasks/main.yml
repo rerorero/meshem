@@ -1,0 +1,7 @@
+---
+- name: put timezone
+  timezone:
+    name: "{{ common_timezone }}"
+  become: yes
+
+- include: "{{ ansible_distribution }}.yml"

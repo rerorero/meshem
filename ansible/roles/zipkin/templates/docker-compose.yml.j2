@@ -1,0 +1,8 @@
+---
+version: '2'
+services:
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "{{ zipkin_port }}:9411"
+    restart: always

@@ -1,0 +1,24 @@
+---
+- hosts: control-plane
+  roles:
+    - common
+    - docker
+
+- hosts: consul
+  roles:
+    - consul
+
+- hosts: prometheus
+  roles:
+    - role: consul
+      consul_role: client
+    - prometheus
+    - grafana
+
+- hosts: zipkin
+  roles:
+    - role: zipkin
+
+- hosts: meshem
+  roles:
+    - meshem

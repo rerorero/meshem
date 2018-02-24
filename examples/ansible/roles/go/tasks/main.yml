@@ -1,0 +1,31 @@
+---
+- name: Create GOPATH directory
+  file:
+    path: "{{ go_path }}"
+    state: directory
+    mode: 0755
+  become: yes
+
+- name: Check if go is installed
+  command: "{{ go_root }}/bin/go version"
+  register: go_version
+  ignore_errors: yes
+
+- block:
+  - name: Get go archive
+    get_url:
+      url: https://dl.google.com/go/go1.10.linux-amd64.tar.gz
+      dest: /tmp/golang.tar.gz
+    become: yes
+
+  - name: Unarchive go package
+    shell: "tar -C {{ go_home }} -xzf /tmp/golang.tar.gz"
+    become: yes
+  when: go_version|failed
+
+- name: go env
+  template:
+    src: go.sh.j2
+    dest: /etc/profile.d/go.sh
+    mode: 0644
+  become: yes

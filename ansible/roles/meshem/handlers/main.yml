@@ -1,0 +1,7 @@
+---
+- name: restart meshem
+  systemd:
+    name: consul
+    state: restarted
+    daemon_reload: yes
+  become: yes

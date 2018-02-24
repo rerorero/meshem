@@ -1,0 +1,117 @@
+version: '2'
+
+services:
+
+  consul:
+    image: consul:1.0.3
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+      - 'CONSUL_LOCAL_CONFIG={"acl_datacenter": "dc1", "acl_default_policy": "deny", "acl_master_token": "master"}'
+    expose: [8500]
+    networks:
+      test:
+        ipv4_address: 10.2.0.4
+
+  meshem:
+    build:
+      context: .
+      dockerfile: Dockerfile-meshem
+    volumes: 
+      - ../../.:/go/src/github.com/rerorero/meshem
+    expose: 
+      - 8090
+      - 8091
+    networks:
+      test:
+        ipv4_address: 10.2.0.2
+
+  app1-01:
+    build:
+      context: ./app1
+      dockerfile: Dockerfile
+    environment:
+      message: "respond from app1-01"
+    expose: [9001]
+    networks:
+      test:
+        ipv4_address: 10.2.1.1
+  envoy-app1-01:
+    build:
+      context: .
+      dockerfile: Dockerfile-envoy
+    volumes:
+      - ./envoy.yaml:/etc/envoy.yaml
+    command: "/usr/local/bin/envoy  -c /etc/envoy.yaml -l trace --service-cluster app1 --service-node app1-01"
+    expose:
+      - "80"
+      - "8001"
+    networks:
+      test:
+        ipv4_address: 10.2.1.11
+
+  app1-02:
+    build:
+      context: ./app1
+      dockerfile: Dockerfile
+    environment:
+      message: "respond from app1-02"
+    expose: [9001]
+    networks:
+      test:
+        ipv4_address: 10.2.1.2
+  envoy-app1-02:
+    build:
+      context: .
+      dockerfile: Dockerfile-envoy
+    volumes:
+      - ./envoy.yaml:/etc/envoy.yaml
+    command: "/usr/local/bin/envoy  -c /etc/envoy.yaml -l trace --service-cluster app1 --service-node app1-02"
+    expose:
+      - "80"
+      - "8001"
+    networks:
+      test:
+        ipv4_address: 10.2.1.12
+
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    environment:
+      egress_app1: "http://10.2.2.11:9000"
+    expose: [8080]
+    networks:
+      test:
+        ipv4_address: 10.2.2.1
+  envoy-front:
+    build:
+      context: .
+      dockerfile: Dockerfile-envoy
+    volumes:
+      - ./envoy.yaml:/etc/envoy.yaml
+    command: "/usr/local/bin/envoy  -c /etc/envoy.yaml -l trace --service-cluster front --service-node front"
+    expose:
+      - "80"
+      - "9000"
+      - "8001"
+    networks:
+      test:
+        ipv4_address: 10.2.2.11
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile-client
+    volumes: 
+      - ../../.:/go/src/github.com/rerorero/meshem
+    networks:
+      test:
+        ipv4_address: 10.2.0.3
+
+networks:
+  test:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.2.0.0/16
+          gateway: 10.2.0.1

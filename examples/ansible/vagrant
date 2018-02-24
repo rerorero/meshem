@@ -1,0 +1,18 @@
+myfront ansible_host=192.168.34.70
+myapp1 ansible_host=192.168.34.71
+myapp2 ansible_host=192.168.34.72
+
+[app]
+myapp1
+myapp2
+
+[front]
+myfront
+
+[data-plane]
+myfront
+myapp1
+myapp2
+
+[vagrant:children]
+data-plane

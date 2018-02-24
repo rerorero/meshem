@@ -1,0 +1,25 @@
+---
+- name: Put Go source
+  template:
+    src: front.go.j2
+    dest: /var/front.go
+  become: yes
+  notify: restart front
+
+- name: setup systemd
+  template:
+    src: front.service.j2
+    dest: /etc/systemd/system/front.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify: restart front
+
+- name: starts front
+  systemd:
+    name: front.service
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  become: yes

@@ -1,0 +1,8 @@
+---
+- hosts: app
+  roles:
+    - app
+
+- hosts: front
+  roles:
+    - front

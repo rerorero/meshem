@@ -1,0 +1,42 @@
+---
+- name: install grafana rpm
+  yum:
+    name: "{{ grafana_rpm_url }}"
+    state: present
+  become: yes
+
+- name: put grafana config
+  template:
+    src: grafana.ini.j2
+    dest: /etc/grafana/grafana.ini
+    owner: grafana
+    group: grafana
+  notify: restart grafana
+  become: yes
+
+- name: mkdir dashboards dir
+  file:
+    path: "{{ grafan_dashboards_dir }}"
+    owner: grafana
+    group: grafana
+    mode: 0755
+    state: directory
+  become: yes
+
+# TODO: make dashboard
+# - name: put dashboard json
+#   template:
+#     src: grafana.ini.j2
+#     dest: "{{ grafana_dashboards_dir }}/{{ item }}"
+#     owner: grafana
+#     group: grafana
+#   with_items:
+#     - envoy_exporter.json
+#   become: yes
+#   notify: restart grafana
+
+- name: be sure grafana started
+  service:
+    name: grafana-server
+    state: started
+  become: yes

@@ -1,0 +1,23 @@
+---
+- name: mkdir zipkin directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0777
+    recurse: yes
+  with_items:
+    - "{{ zipkin_data_dir }}"
+  become: yes
+
+# TODO: deploy decently
+- name: Put zipkin compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ zipkin_data_dir }}/docker-compose.yml"
+
+- name: Start zipkin server
+  command: docker-compose up -d
+  args:
+    chdir: "{{ zipkin_data_dir }}"
+  become: yes
+  become_user: "{{ zipkin_docker_runner }}"

@@ -1,0 +1,5 @@
+---
+docker_centos7_pkg: docker-ce-17.12.0.ce
+docker_compose_version: 1.19.0
+docker_binary_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64"
+

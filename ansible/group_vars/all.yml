@@ -1,0 +1,6 @@
+---
+# consul
+consul_master_token: master
+consul_server_hosts: "{{ groups['consul'] | map('extract', hostvars, 'ansible_host') | list }}"
+consul_datacenter: dc1
+
