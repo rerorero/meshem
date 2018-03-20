@@ -1,0 +1,28 @@
+---
+- name: Wait for grafana
+  wait_for:
+    port: 3000
+
+- name: get prometheus datastore
+  uri:
+    url: http://localhost:3000/api/datasources
+    method: GET
+    user: admin
+    password: admin
+    force_basic_auth: yes
+  register: datasources_result
+
+- set_fact:
+    datasources: '{{ datasources_result.json|map(attribute="name")|list}}'
+
+- name: Add prometheus datastore
+  uri:
+    url: http://localhost:3000/api/datasources
+    method: POST
+    body: "{{ grafana_datasource | to_json }}"
+    body_format: json
+    user: admin
+    password: admin
+    force_basic_auth: yes
+  when: '"Prometheus" not in datasources'
+

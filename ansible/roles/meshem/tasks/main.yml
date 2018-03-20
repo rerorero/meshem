@@ -15,9 +15,23 @@
 - name: Download meshem binary
   get_url:
     url: "{{ meshem_pkg_url }}"
-    dest: /usr/local/bin/meshem
+    dest: "/tmp/meshem_version-{{ meshem_version }}"
     mode: 0755
   become: yes
+  register: dl_meshem
+
+- block:
+  - name: Stop meshem to replace
+    systemd:
+      name: meshem
+      state: stopped
+    become: yes
+    failed_when: no
+
+  - name: Download meshem binary
+    shell: "cp /tmp/meshem_version-{{ meshem_version }} /usr/local/bin/meshem && chmod 0755 /usr/local/bin/meshem"
+    become: yes
+  when: dl_meshem.changed
 
 - name: Put meshem config
   template:

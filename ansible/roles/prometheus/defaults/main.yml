@@ -8,5 +8,4 @@ prometheus_pkg_dir: /usr/local/bin/prometheus_pkg
 prometheus_log_dir: /var/log/prometheus
 prometheus_strage_path: /var/prometheus/data
 prometheus_retention: 15d
-prometheus_listen_port: 9090
 prometheus_loglevel: info

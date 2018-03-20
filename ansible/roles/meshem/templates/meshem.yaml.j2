@@ -9,7 +9,6 @@ consul:
 ctlapi:
   port: {{ meshem_ctlapi_port }}
 discovery:
-discovery:
   type: consul
   consul:
     url: "http://{{ consul_server_hosts[0] }}:8500"

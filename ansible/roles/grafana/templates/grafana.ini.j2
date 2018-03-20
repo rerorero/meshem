@@ -2,4 +2,7 @@ instance_name = ${HOSTNAME}
 
 [auth.anonymous]
 enabled = true
-path = {{ grafan_dashboards_dir }}
+
+[dashboards.json]
+enabled = true
+path = {{ grafana_dashboards_dir }}

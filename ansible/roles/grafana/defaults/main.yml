@@ -1,2 +1,8 @@
 ---
-grafan_dashboards_dir: /var/lib/grafana/dashboards
+grafana_dashboards_dir: /var/lib/grafana/dashboards
+grafana_datasource:
+  name: Prometheus
+  type: prometheus
+  url: "http://{{ prometheus_hosts[0] }}:{{ prometheus_listen_port }}"
+  access: proxy
+  basicAuth: false

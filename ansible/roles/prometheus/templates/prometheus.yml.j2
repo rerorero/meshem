@@ -1,23 +1,33 @@
 global:
-  # How frequently to scrape targets by default.
   scrape_interval: 15s
-
-  # How long until a scrape request times out.
   scrape_timeout: 10s
-
-  # How frequently to evaluate rules.
   evaluation_interval: 1m
 
-  # The labels to add to any time series or alerts when communicating with
-  # external systems (federation, remote storage, Alertmanager).
-  # external_labels: {}
-
-# A list of scrape configurations.
-# Also see, default ports
-# https://github.com/prometheus/prometheus/wiki/Default-port-allocations
 scrape_configs:
   - job_name: dataplane
     consul_sd_configs:
       - server:   'localhost:8500'
         token:    '{{ consul_master_token }}'
-        services: ['meshem_dataplane']
+        services: ['meshem_envoy']
+    metrics_path: '/stats'
+    params:
+      format: ['prometheus']
+    relabel_configs:
+    - source_labels: ['__meta_consul_address']
+      regex: '(.*)'
+      target_label: '__address__'
+      replacement: '$1'
+    - source_labels: ['__meta_consul_node']
+      regex: '(.+)'
+      target_label: 'instance' # Overwrite instance to not have the port number in it
+      replacement: '$1'
+    - source_labels: ['__meta_consul_metadata_meshem_service']
+      regex: '(.+)'
+      replacement: '${1}'
+      target_label: 'local_cluster'
+    metric_relabel_configs: # We don't like the envoy_ prefixes on label names, they're unnecessary. So strip them.
+    - action: 'labelmap'
+      regex: 'envoy_(.*)'
+      replacement: '$1'
+    - action: 'labeldrop'
+      regex: 'envoy_(.*)'
