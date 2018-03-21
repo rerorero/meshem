@@ -98,6 +98,16 @@ services:
       test:
         ipv4_address: 10.2.2.11
 
+  zipkin:
+    image: openzipkin/zipkin
+    expose:
+      - "9411"
+    ports:
+      - "19411:9411"
+    networks:
+      test:
+        ipv4_address: 10.2.3.1
+
   client:
     build:
       context: .
