@@ -16,5 +16,5 @@ func NewVersionCommand() *cobra.Command {
 }
 
 func versionCommandFunc(cmd *cobra.Command, args []string) {
-	fmt.Println("meshemctl version:", src.ClientVersion())
+	fmt.Println("meshemctl version:", src.MeshemVersion())
 }

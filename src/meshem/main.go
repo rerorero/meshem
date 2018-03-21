@@ -28,7 +28,7 @@ func main() {
 	flag.Parse()
 	ctx := context.Background()
 
-	logger.Infof("meshem server version=%s", src.ServerVersion())
+	logger.Infof("meshem server version=%s", src.MeshemVersion())
 
 	// read config file
 	conf, err := model.NewMeshemConfFile(*confPath)
