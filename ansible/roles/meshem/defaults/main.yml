@@ -1,5 +1,5 @@
 ---
-meshem_version: "0.1.0"
+meshem_version: "0.1.1"
 meshem_pkg_url: "https://github.com/rerorero/meshem/releases/download/{{ meshem_version }}/meshem_linux_amd64"
 meshem_user: meshem
 meshem_group: meshem
