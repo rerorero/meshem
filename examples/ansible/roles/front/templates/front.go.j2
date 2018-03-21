@@ -8,14 +8,44 @@ import (
 	"net/http"
 )
 
-var port = flag.Int("port", 8080, "listen port")
-var apphost = flag.String("app", "", "app host")
+var (
+	port         = flag.Int("port", 8080, "listen port")
+	apphost      = flag.String("app", "", "app host")
+	client       = http.Client{}
+	traceHeaders = []string{
+		"X-Ot-Span-Context",
+		"X-Request-Id",
+		"X-B3-TraceId",
+		"X-B3-SpanId",
+		"X-B3-ParentSpanId",
+		"X-B3-Sampled",
+		"X-B3-Flags",
+	}
+)
+
+func propagate(in *http.Request, out *http.Request) {
+	for _, key := range traceHeaders {
+		value := in.Header.Get(key)
+		if value != "" {
+			out.Header.Add(key, value)
+		}
+	}
+}
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(*apphost)
+	req, err := http.NewRequest("GET", *apphost, nil)
 	if err != nil {
 		fmt.Fprintf(w, "Error!!! %s\n", err.Error())
 	}
+
+	// copy headers for tracing
+	propagate(r, req)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Fprintf(w, "Error!!! %s\n", err.Error())
+	}
+	fmt.Println(resp)
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -32,7 +62,7 @@ func newLogHandler(handler http.Handler) http.Handler {
 func main() {
 	flag.Parse()
 	http.HandleFunc("/", handler)
-	err := http.ListenAndServe(fmt.Sprintf(":%d",*port), newLogHandler(http.DefaultServeMux))
+	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), newLogHandler(http.DefaultServeMux))
 	if err != nil {
 		println(err.Error)
 	}
