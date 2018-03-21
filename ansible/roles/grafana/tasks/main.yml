@@ -39,6 +39,7 @@
   service:
     name: grafana-server
     state: started
+    enabled: yes
   become: yes
 
 - include: configure.yml
