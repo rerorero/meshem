@@ -277,6 +277,7 @@ func MakeRoute(routeName, clusterName string, traceSpan string) *v2.RouteConfigu
 	if len(traceSpan) > 0 {
 		decorater = &route.Decorator{Operation: traceSpan}
 	}
+
 	return &v2.RouteConfiguration{
 		Name: routeName,
 		VirtualHosts: []route.VirtualHost{{
@@ -340,7 +341,7 @@ func MakeHTTPListener(p *httpListenerParam) (*v2.Listener, error) {
 	// tracing
 	var tracing *hcm.HttpConnectionManager_Tracing
 	if p.traceEnabled {
-		tracing := &hcm.HttpConnectionManager_Tracing{}
+		tracing = &hcm.HttpConnectionManager_Tracing{}
 		if p.isIngress {
 			tracing.OperationName = hcm.INGRESS
 		} else {
