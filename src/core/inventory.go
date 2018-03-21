@@ -29,7 +29,6 @@ type InventoryService interface {
 	IdempotentService(serviceName string, param model.IdempotentServiceParam) (changed bool, err error)
 }
 
-// TODO: logging
 type inventoryService struct {
 	repo       repository.InventoryRepository
 	discovery  repository.DiscoveryRepository
@@ -53,7 +52,7 @@ func NewInventoryService(
 }
 
 // RegisterService stores a new Service object.
-// TODO: with consistency
+// TODO: be with consistency
 func (inv *inventoryService) RegisterService(name string, protocol string) (service model.Service, err error) {
 	service = model.NewService(name, protocol)
 

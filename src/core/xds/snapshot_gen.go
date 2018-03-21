@@ -125,7 +125,17 @@ func (gen *snapGen) makeHostSnapshot(service *model.Service, host *model.Host, d
 	case model.ProtocolHTTP:
 		ingressRouteName := "route-" + ingressClusterName
 		routes = append(routes, MakeRoute(ingressRouteName, ingressClusterName, service.TraceSpan))
-		l, err := MakeHTTPListener(listenerName, host.IngressAddr, ingressRouteName, ingressClusterName, gen.envoyConf.AccessLogDir, ingressClusterName+".log", NewDisabledHTTPHealthCheck())
+		l, err := MakeHTTPListener(&httpListenerParam{
+			listenerName: listenerName,
+			address:      &host.IngressAddr,
+			route:        ingressRouteName,
+			statPrefix:   ingressClusterName,
+			logfileDir:   gen.envoyConf.AccessLogDir,
+			logfileName:  ingressClusterName + ".log",
+			health:       NewDisabledHTTPHealthCheck(),
+			isIngress:    true,
+			traceEnabled: len(service.TraceSpan) > 0,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -169,7 +179,17 @@ func (gen *snapGen) makeHostSnapshot(service *model.Service, host *model.Host, d
 		case model.ProtocolHTTP:
 			egressRouteName := "route-" + egressClusterName
 			routes = append(routes, MakeRoute(egressRouteName, egressClusterName, depsvc.TraceSpan))
-			l, err := MakeHTTPListener(listenerName, *addr, egressRouteName, egressClusterName, gen.envoyConf.AccessLogDir, egressClusterName+".log", NewDisabledHTTPHealthCheck())
+			l, err := MakeHTTPListener(&httpListenerParam{
+				listenerName: listenerName,
+				address:      addr,
+				route:        egressRouteName,
+				statPrefix:   egressClusterName,
+				logfileDir:   gen.envoyConf.AccessLogDir,
+				logfileName:  egressClusterName + ".log",
+				health:       NewDisabledHTTPHealthCheck(),
+				isIngress:    false,
+				traceEnabled: len(depsvc.TraceSpan) > 0,
+			})
 			if err != nil {
 				return nil, err
 			}
@@ -281,33 +301,58 @@ func MakeRoute(routeName, clusterName string, traceSpan string) *v2.RouteConfigu
 	}
 }
 
+type httpListenerParam struct {
+	listenerName string
+	address      *model.Address
+	route        string
+	statPrefix   string
+	logfileDir   string
+	logfileName  string
+	health       *HTTPHealthCheck
+	isIngress    bool
+	traceEnabled bool
+	// TODO: more trace settings
+}
+
 // MakeHTTPListener creates a listener using either ADS or RDS for the route.
-func MakeHTTPListener(listenerName string, address model.Address, route, statPrefix, logfileDir, logfileName string, health *HTTPHealthCheck) (*v2.Listener, error) {
+func MakeHTTPListener(p *httpListenerParam) (*v2.Listener, error) {
 	// access log service configuration
 	alsConfig := &accesslog.FileAccessLog{
-		Path: logfileDir + "/" + logfileName,
+		Path: p.logfileDir + "/" + p.logfileName,
 	}
 	alsConfigPbst, err := util.MessageToStruct(alsConfig)
 	if err != nil {
-		return nil, errors.Wrapf(err, "listnere FileAccessLog generation failed(name=%s addr=%+v, route=%s, log=%s:%s)", listenerName, address, route, logfileDir, logfileName)
+		return nil, errors.Wrapf(err, "listnere FileAccessLog generation failed(%+v)", *p)
 	}
 
 	// HTTP filter configuration
 	httpFilters := []*hcm.HttpFilter{{
 		Name: cache.Router,
 	}}
-	if health.Enabled {
-		filter, err := health.createEnvoyHTTPFilter()
+	if p.health.Enabled {
+		filter, err := p.health.createEnvoyHTTPFilter()
 		if err != nil {
 			return nil, err
 		}
 		httpFilters = append(httpFilters, filter)
 	}
 
+	// tracing
+	var tracing *hcm.HttpConnectionManager_Tracing
+	if p.traceEnabled {
+		tracing := &hcm.HttpConnectionManager_Tracing{}
+		if p.isIngress {
+			tracing.OperationName = hcm.INGRESS
+		} else {
+			tracing.OperationName = hcm.EGRESS
+		}
+	}
+
 	// HTTP connection manager configuration
 	manager := &hcm.HttpConnectionManager{
 		CodecType:  hcm.AUTO,
-		StatPrefix: statPrefix,
+		StatPrefix: p.statPrefix,
+		Tracing:    tracing,
 		RouteSpecifier: &hcm.HttpConnectionManager_Rds{
 			Rds: &hcm.Rds{
 				ConfigSource: core.ConfigSource{
@@ -318,7 +363,7 @@ func MakeHTTPListener(listenerName string, address model.Address, route, statPre
 						},
 					},
 				},
-				RouteConfigName: route,
+				RouteConfigName: p.route,
 			},
 		},
 		HttpFilters: httpFilters,
@@ -330,18 +375,18 @@ func MakeHTTPListener(listenerName string, address model.Address, route, statPre
 
 	pbst, err := util.MessageToStruct(manager)
 	if err != nil {
-		return nil, errors.Wrapf(err, "listnere Manager generation failed(name=%s addr=%+v, route=%s, log=%s:%s)", listenerName, address, route, logfileDir, logfileName)
+		return nil, errors.Wrapf(err, "listnere Manager generation failed(%+v)", *p)
 	}
 
 	return &v2.Listener{
-		Name: listenerName,
+		Name: p.listenerName,
 		Address: core.Address{
 			Address: &core.Address_SocketAddress{
 				SocketAddress: &core.SocketAddress{
 					Protocol: core.TCP,
-					Address:  address.Hostname,
+					Address:  p.address.Hostname,
 					PortSpecifier: &core.SocketAddress_PortValue{
-						PortValue: address.Port,
+						PortValue: p.address.Port,
 					},
 				},
 			},
