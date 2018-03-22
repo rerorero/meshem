@@ -9,9 +9,11 @@ meshem is a simple service mesh control plane application which depends on [Envo
 - [Example ansible playbooks of data planes.](/exampls/ansible)
 - [Example on docker.](/exampls/docker)
 
+You can get meshem server and CLI binary from [Github release page](https://github.com/rerorero/meshem/releases). There is also a docker image that contains both of them. Try `docker pull rerorero/meshem`.
+
 This implementation is not production ready as the purpose of meshem is mainly to learn envoy and service mesh.
 
-Vagrant + Ansible example
+Vagrant + Ansible example: step by step
 =======
 
 ### Requirments
@@ -71,11 +73,17 @@ Try to send HTTP requests to front proxy several times. From the response you ca
 ```
 curl 192.168.34.70:80
 ```
-Check metrics and tracing.
-- zipkin is running on http://192.168.34.62:9411/
-- grafana is running on http://192.168.34.62:3000/ 
- - dashoboard uses [transferwise/prometheus-envoy-dashboards](https://github.com/transferwise/prometheus-envoy-dashboards). Thanks!
+Show metrics and tracing.
+- Zipkin is running on http://192.168.34.62:9411/
+- Grafana is running on http://192.168.34.62:3000/ 
+    - Prometheus is running on http://192.168.34.62:9090/ 
+    - Dashoboard uses [transferwise/prometheus-envoy-dashboards](https://github.com/transferwise/prometheus-envoy-dashboards). Thanks!
 
+Vagrant + Ansible example: oneshot
+=======
+```
+./run.sh
+```
 
 Docker example
 =======
