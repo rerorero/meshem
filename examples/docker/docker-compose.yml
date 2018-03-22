@@ -8,6 +8,8 @@ services:
       - CONSUL_BIND_INTERFACE=eth0
       - 'CONSUL_LOCAL_CONFIG={"acl_datacenter": "dc1", "acl_default_policy": "deny", "acl_master_token": "master"}'
     expose: [8500]
+    ports:
+      - 28500:8500
     networks:
       test:
         ipv4_address: 10.2.0.4

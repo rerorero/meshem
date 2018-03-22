@@ -13,19 +13,14 @@ scrape_configs:
     params:
       format: ['prometheus']
     relabel_configs:
-    - source_labels: ['__meta_consul_address']
-      regex: '(.*)'
-      target_label: '__address__'
-      replacement: '$1'
+    - source_labels: [__meta_consul_address, __meta_consul_service_port]
+      separator: ':'
+      target_label: __address__
     - source_labels: ['__meta_consul_node']
-      regex: '(.+)'
-      target_label: 'instance' # Overwrite instance to not have the port number in it
-      replacement: '$1'
+      target_label: 'instance'
     - source_labels: ['__meta_consul_metadata_meshem_service']
-      regex: '(.+)'
-      replacement: '${1}'
       target_label: 'local_cluster'
-    metric_relabel_configs: # We don't like the envoy_ prefixes on label names, they're unnecessary. So strip them.
+    metric_relabel_configs:
     - action: 'labelmap'
       regex: 'envoy_(.*)'
       replacement: '$1'

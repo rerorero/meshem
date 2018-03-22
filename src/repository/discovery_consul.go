@@ -33,12 +33,16 @@ func NewDiscoveryConsul(consul *utils.Consul, globalName string) DiscoveryReposi
 
 // Register registers an admin endpoint of host to the consul cagtalog
 func (dc *discoveryConsul) Register(host model.Host, tags map[string]string) error {
+	adminAddr := host.GetAdminAddr()
+
 	service := &api.AgentService{
 		Service: dc.globalName,
+		Port:    int(adminAddr.Port),
 	}
+
 	reg := &api.CatalogRegistration{
 		Node:       host.Name,
-		Address:    host.GetAdminAddr().String(),
+		Address:    adminAddr.Hostname,
 		Datacenter: dc.consul.Datacenter,
 		NodeMeta:   tags,
 		Service:    service,
@@ -61,13 +65,19 @@ func (dc *discoveryConsul) FindByName(hostname string) (*DiscoveryInfo, bool, er
 		return nil, false, nil
 	}
 
-	addr, err := model.ParseAddress(node.Node.Address)
+	// make address
+	addr := model.Address{Hostname: node.Node.Address}
+	svc, ok := node.Services[dc.globalName]
+	if ok {
+		addr.Port = uint32(svc.Port)
+	}
+
 	if err != nil {
 		return nil, false, fmt.Errorf("unexpected address format %s", node.Node.Address)
 	}
 	info := DiscoveryInfo{
 		Name:    node.Node.Node,
-		Address: *addr,
+		Address: addr,
 		Tags:    node.Node.Meta,
 	}
 	return &info, true, nil
