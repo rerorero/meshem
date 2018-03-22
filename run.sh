@@ -1,6 +1,7 @@
 #!/bin/bash
 set -eux
 
+go get github.com/golang/dep/cmd/dep
 dep ensure
 go install ./src/meshemctl
 
